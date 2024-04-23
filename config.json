@@ -38,10 +38,10 @@
     "addr": "0.0.0.0:24567",
     "boot_nodes": "ed25519:86EtEy7epneKyrcJwSWP7zsisTkfDRH5CFVszt4qiQYw@35.195.32.249:24567,ed25519:BFB78VTDBBfCY4jCP99zWxhXUcFAZqR22oSx2KEr8UM1@35.229.222.235:24567,ed25519:Cw1YyiX9cybvz3yZcbYdG7oDV6D7Eihdfc8eM1e1KKoh@35.195.27.104:24567,ed25519:33g3PZRdDvzdRpRpFRZLyscJdbMxUA3j3Rf2ktSYwwF8@34.94.132.112:24567,ed25519:CDQFcD9bHUWdc31rDfRi4ZrJczxg8derCzybcac142tK@35.196.209.192:24567",
     "whitelist_nodes": "",
-    "max_num_peers": 40,
+    "max_num_peers": 120,
     "minimum_outbound_peers": 5,
-    "ideal_connections_lo": 30,
-    "ideal_connections_hi": 35,
+    "ideal_connections_lo": 40,
+    "ideal_connections_hi": 80,
     "peer_recent_time_window": {
       "secs": 600,
       "nanos": 0
@@ -169,7 +169,7 @@
   "enable_multiline_logging": false,
   "gc_blocks_limit": 2,
   "gc_fork_clean_step": 100,
-  "gc_num_epochs_to_keep": 5,
+  "gc_num_epochs_to_keep": 3,
   "view_client_threads": 4,
   "epoch_sync_enabled": false,
   "view_client_throttle_period": {
@@ -214,12 +214,6 @@
       "oracle.sweat",
       "sweat_the_oracle.testnet"
     ],
-    "load_mem_tries_for_shards": [],
-    "load_mem_tries_for_tracked_shards": false,
-    "state_snapshot_config": {
-      "state_snapshot_type": "ForReshardingOnly"
-    },
-    "state_snapshot_enabled": false,
     "claim_sweat_prefetch_config": [
       {
         "receiver": "claim.sweat",
@@ -231,7 +225,13 @@
         "sender": "",
         "method_name": "claim"
       }
-    ]
+    ],
+    "load_mem_tries_for_shards": [],
+    "load_mem_tries_for_tracked_shards": false,
+    "state_snapshot_config": {
+      "state_snapshot_type": "ForReshardingOnly"
+    },
+    "state_snapshot_enabled": false
   },
   "state_sync_enabled": false,
   "state_sync": {
