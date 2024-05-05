@@ -21,24 +21,16 @@ PREFIX="https://snapshot.neardata.xyz/mainnet/rpc"
 : "${DATA_PATH:=/root/.near/data}"
 
 main() {
-
   mkdir -p "$DATA_PATH"
   LATEST=$(curl -s "$PREFIX/latest.txt")
   echo "Latest snapshot block: $LATEST"
 
-  aria2c -q "$PREFIX/$LATEST/files.txt" -O /tmp/files.txt
+  FILES_PATH="/tmp/files.txt"
+  curl -s "$PREFIX/$LATEST/files.txt" -o $FILES_PATH
 
-  EXPECTED_NUM_FILES=$(wc -l < /tmp/files.txt)
-
-  echo "Creating sub-directories"
-  while IFS= read -r FILE; do
-    DIR=$(dirname "$FILE")
-    if [ "$DIR" != "." ]; then
-      mkdir -p "$DATA_PATH/$DIR"
-    fi
-  done < /tmp/files.txt
-
+  EXPECTED_NUM_FILES=$(wc -l < $FILES_PATH)
   echo "Downloading $EXPECTED_NUM_FILES files with $THREADS threads"
+
   aria2c --split=4 --max-connection-per-server=$THREADS --min-split-size=80M \
          --max-concurrent-downloads=$THREADS --connect-timeout=60 --retry-wait=1 \
          --max-tries=100 \
@@ -49,7 +41,7 @@ main() {
          --file-allocation=none \
          --download-result=hide \
          -j $THREADS \
-         --input-file=<(awk '{print "'$PREFIX'/'$LATEST'/" $1 "\n\t" "out=" $1}' /tmp/files.txt)
+         --input-file=<(awk '{print "'$PREFIX'/'$LATEST'/" $1 "\n\t" "out=" $1}' $FILES_PATH)
 
   ACTUAL_NUM_FILES=$(find $DATA_PATH -type f | wc -l)
   echo "Downloaded $ACTUAL_NUM_FILES files, expected $EXPECTED_NUM_FILES"
