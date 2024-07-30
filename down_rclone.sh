@@ -35,7 +35,7 @@ main() {
     --http-no-head \
     --transfers $THREADS \
     --checkers $THREADS \
-    --buffer-size 128Mi \
+    --buffer-size 128M \
     --http-url $HTTP_URL \
     --files-from=$FILES_PATH \
     --retries 10 \
