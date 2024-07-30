@@ -6,6 +6,7 @@ set -e
 # Instructions:
 # - Make sure you have rclone installed, e.g. using `apt install rclone`
 # - Set $DATA_PATH to the path where you want to download the snapshot (default: /root/.near/data)
+# - Set $THREADS to the number of threads you want to use for downloading (default: 16).
 
 if ! command -v rclone &> /dev/null
 then
@@ -15,6 +16,7 @@ fi
 
 HTTP_URL="https://snapshot.neardata.xyz"
 PREFIX="mainnet/rpc"
+: "${THREADS:=16}"
 : "${DATA_PATH:=/root/.near/data}"
 
 main() {
@@ -31,6 +33,9 @@ main() {
   rclone copy \
     --no-traverse \
     --http-no-head \
+    --transfers $THREADS \
+    --checkers $THREADS \
+    --buffer-size 128Mi \
     --http-url $HTTP_URL \
     --files-from=$FILES_PATH \
     --retries 10 \
@@ -47,3 +52,5 @@ main() {
     exit 1
   fi
 }
+
+main "$@"
