@@ -38,7 +38,6 @@ main() {
         --continue=on \
         --retry-connrefused=on \
         --tries=0 \
-        --timestamping=on \
         --timeout=60 \
         --read-timeout=60 \
         --progress=bar
