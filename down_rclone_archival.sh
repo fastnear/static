@@ -8,7 +8,7 @@ set -e
 # - Make sure you have rclone installed, e.g. using `sudo -v ; curl https://rclone.org/install.sh | sudo bash`
 # - Set $CHAIN_ID to either mainnet or testnet (default: mainnet)
 # - Set $THREADS to the number of threads you want to use for downloading. Use 128 for 10Gbps, and 16 for 1Gbps (default: 128).
-# - Set $TPSLIMIT to the maximum number of HTTP new actions per second. Default is okay. (default: 64)
+# - Set $TPSLIMIT to the maximum number of HTTP new actions per second. (default: 4096)
 # - Set $DATA_TYPE to either `hot-data` or `cold-data` (default: cold-data)
 # - Set $BWLIMIT to the maximum bandwidth to use for download in case you want to limit it. (default: 10G)
 # - Set $DATA_PATH to the path where you want to download the snapshot (default: /mnt/nvme/data/$DATA_TYPE)

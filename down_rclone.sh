@@ -8,9 +8,9 @@ set -e
 # - Make sure you have rclone installed, e.g. using `sudo -v ; curl https://rclone.org/install.sh | sudo bash`
 # - Set $CHAIN_ID to either mainnet or testnet (default: mainnet)
 # - Set $THREADS to the number of threads you want to use for downloading. Use 128 for 10Gbps, and 16 for 1Gbps (default: 128).
-# - Set $TPSLIMIT to the maximum number of HTTP new actions per second. Default is okay. (default: 64)
+# - Set $TPSLIMIT to the maximum number of HTTP new actions per second. (default: 4096)
 # - Set $BWLIMIT to the maximum bandwidth to use for download in case you want to limit it. (default: 10G)
-# - Set $DATA_PATH to the path where you want to download the snapshot (default: /root/.near/data)
+# - Set $DATA_PATH to the path where you want to download the snapshot (default: ~/.near/data)
 # - Set $BLOCK to the block height of the snapshot you want to download. If not set, it will download the latest snapshot.
 
 if ! type rclone >/dev/null 2>&1
@@ -24,7 +24,7 @@ HTTP_URL="https://snapshot.neardata.xyz"
 : "${THREADS:=128}"
 : "${TPSLIMIT:=4096}"
 : "${BWLIMIT:=10G}"
-: "${DATA_PATH:=/root/.near/data}"
+: "${DATA_PATH:=~/.near/data}"
 
 PREFIX="$CHAIN_ID/rpc"
 
