@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 set -e
 
 # The script downloads the RPC snapshot from the FASTNEAR snapshots.
