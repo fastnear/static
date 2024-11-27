@@ -12,7 +12,7 @@ set -e
 # - Set $DATA_PATH to the path where you want to download the snapshot (default: /root/.near/data)
 # - Set $BLOCK to the block height of the snapshot you want to download. If not set, it will download the latest snapshot.
 
-if ! command -v rclone &> /dev/null
+if ! type rclone >/dev/null 2>&1
 then
     echo "rclone is not installed. Please install it and try again."
     exit 1
@@ -21,7 +21,7 @@ fi
 HTTP_URL="https://snapshot.neardata.xyz"
 : "${CHAIN_ID:=mainnet}"
 : "${THREADS:=128}"
-: "${TPSLIMIT:=64}"
+: "${TPSLIMIT:=4096}"
 : "${BWLIMIT:=10G}"
 : "${DATA_PATH:=/root/.near/data}"
 
@@ -46,7 +46,6 @@ main() {
     --tpslimit $TPSLIMIT \
     --bwlimit $BWLIMIT \
     --no-traverse \
-    --http-no-head \
     --transfers $THREADS \
     --checkers $THREADS \
     --buffer-size 128M \
