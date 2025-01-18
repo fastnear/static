@@ -55,9 +55,9 @@ main() {
     --buffer-size 128M \
     --http-url $HTTP_URL \
     --files-from=$FILES_PATH \
-    --retries 10 \
+    --retries 100 \
     --retries-sleep 1s \
-    --low-level-retries 10 \
+    --low-level-retries 100 \
     --progress \
     --stats-one-line \
     :http:$PREFIX/$BLOCK/ $DATA_PATH
