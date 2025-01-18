@@ -51,6 +51,7 @@ main() {
     --bwlimit $BWLIMIT \
     --transfers $THREADS \
     --checkers 128 \
+    --max-backlog 1000000 \
     --buffer-size 128M \
     --http-url $HTTP_URL \
     --files-from=$FILES_PATH \
