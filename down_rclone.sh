@@ -11,6 +11,7 @@ set -e
 # - Set $TPSLIMIT to the maximum number of HTTP new actions per second. (default: 4096)
 # - Set $BWLIMIT to the maximum bandwidth to use for download in case you want to limit it. (default: 10G)
 # - Set $DATA_PATH to the path where you want to download the snapshot (default: ~/.near/data)
+# - Set $RPC_TYPE to either `rpc` or `fast-rpc` (default: rpc). `fast-rpc` is the 3 epochs and trimmed headers. `rpc` is 5 epochs and all headers.
 # - Set $BLOCK to the block height of the snapshot you want to download. If not set, it will download the latest snapshot.
 
 if ! type rclone >/dev/null 2>&1
@@ -24,9 +25,10 @@ HTTP_URL="https://snapshot.neardata.xyz"
 : "${THREADS:=128}"
 : "${TPSLIMIT:=4096}"
 : "${BWLIMIT:=10G}"
+: "${RPC_TYPE:=rpc}"
 : "${DATA_PATH:=~/.near/data}"
 
-PREFIX="$CHAIN_ID/rpc"
+PREFIX="$CHAIN_ID/$RPC_TYPE"
 
 LATEST=$(curl -s "$HTTP_URL/$PREFIX/latest.txt")
 echo "Latest snapshot block: $LATEST"
@@ -47,14 +49,15 @@ main() {
     --tpslimit $TPSLIMIT \
     --bwlimit $BWLIMIT \
     --no-traverse \
+    --max-backlog 1000000 \
     --transfers $THREADS \
     --checkers $THREADS \
     --buffer-size 128M \
     --http-url $HTTP_URL \
     --files-from=$FILES_PATH \
-    --retries 10 \
+    --retries 100 \
     --retries-sleep 1s \
-    --low-level-retries 10 \
+    --low-level-retries 100 \
     --progress \
     --stats-one-line \
     :http:$PREFIX/$BLOCK/ $DATA_PATH

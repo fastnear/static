@@ -51,12 +51,13 @@ main() {
     --bwlimit $BWLIMIT \
     --transfers $THREADS \
     --checkers 128 \
+    --max-backlog 1000000 \
     --buffer-size 128M \
     --http-url $HTTP_URL \
     --files-from=$FILES_PATH \
-    --retries 10 \
+    --retries 100 \
     --retries-sleep 1s \
-    --low-level-retries 10 \
+    --low-level-retries 100 \
     --progress \
     --stats-one-line \
     :http:$PREFIX/$BLOCK/$DATA_TYPE/ $DATA_PATH
