@@ -47,17 +47,18 @@ main() {
 
   rclone copy \
     --no-traverse \
+    --multi-thread-streams 1 \
     --tpslimit $TPSLIMIT \
     --bwlimit $BWLIMIT \
+    --max-backlog 1000000 \
     --transfers $THREADS \
     --checkers 128 \
-    --max-backlog 1000000 \
     --buffer-size 128M \
     --http-url $HTTP_URL \
     --files-from=$FILES_PATH \
-    --retries 100 \
+    --retries 20 \
     --retries-sleep 1s \
-    --low-level-retries 100 \
+    --low-level-retries 10 \
     --progress \
     --stats-one-line \
     :http:$PREFIX/$BLOCK/$DATA_TYPE/ $DATA_PATH
