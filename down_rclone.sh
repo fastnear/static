@@ -27,8 +27,12 @@ HTTP_URL="https://snapshot.neardata.xyz"
 : "${BWLIMIT:=10G}"
 : "${RPC_TYPE:=rpc}"
 : "${DATA_PATH:=~/.near/data}"
+: "${RETRIES:=20}"
+: "${CHECKERS:=$THREADS}"
+: "${LOW_LEVEL_RETRIES:=10}"
 
 PREFIX="$CHAIN_ID/$RPC_TYPE"
+HTTP_NO_HEAD_FLAG=""
 
 LATEST=$(curl -s "$HTTP_URL/$PREFIX/latest.txt")
 echo "Latest snapshot block: $LATEST"
@@ -38,6 +42,10 @@ echo "Latest snapshot block: $LATEST"
 main() {
   mkdir -p "$DATA_PATH"
   echo "Snapshot block: $BLOCK"
+
+  if [ -z "$(find "$DATA_PATH" -maxdepth 1 -not -name '.' -not -name '..' -print -quit)" ]; then
+      HTTP_NO_HEAD_FLAG="--http-no-head"
+  fi
 
   FILES_PATH="/tmp/files.txt"
   curl -s "$HTTP_URL/$PREFIX/$BLOCK/files.txt" -o $FILES_PATH
@@ -52,13 +60,13 @@ main() {
     --bwlimit $BWLIMIT \
     --max-backlog 1000000 \
     --transfers $THREADS \
-    --checkers $THREADS \
+    --checkers $CHECKERS \
     --buffer-size 128M \
     --http-url $HTTP_URL \
     --files-from=$FILES_PATH \
-    --retries 10 \
+    --retries $RETRIES \
     --retries-sleep 1s \
-    --low-level-retries 10 \
+    --low-level-retries $LOW_LEVEL_RETRIES \
     --progress \
     --stats-one-line \
     :http:$PREFIX/$BLOCK/ $DATA_PATH

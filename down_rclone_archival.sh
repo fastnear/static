@@ -27,8 +27,12 @@ HTTP_URL="https://snapshot.neardata.xyz"
 : "${DATA_TYPE:=cold-data}"
 : "${DATA_PATH:=/mnt/nvme/data/$DATA_TYPE}"
 : "${BWLIMIT:=10G}"
+: "${RETRIES:=20}"
+: "${CHECKERS:=128}"
+: "${LOW_LEVEL_RETRIES:=10}"
 
 PREFIX="$CHAIN_ID/archival"
+HTTP_NO_HEAD_FLAG=""
 
 LATEST=$(curl -s "$HTTP_URL/$PREFIX/latest.txt")
 echo "Latest snapshot block: $LATEST"
@@ -39,6 +43,10 @@ main() {
   mkdir -p "$DATA_PATH"
   echo "Snapshot block: $BLOCK"
 
+  if [ -z "$(find "$DATA_PATH" -maxdepth 1 -not -name '.' -not -name '..' -print -quit)" ]; then
+      HTTP_NO_HEAD_FLAG="--http-no-head"
+  fi
+
   FILES_PATH="/tmp/files.txt"
   curl -s "$HTTP_URL/$PREFIX/$BLOCK/$DATA_TYPE/files.txt" -o $FILES_PATH
 
@@ -47,18 +55,19 @@ main() {
 
   rclone copy \
     --no-traverse \
+    $HTTP_NO_HEAD_FLAG \
     --multi-thread-streams 1 \
     --tpslimit $TPSLIMIT \
     --bwlimit $BWLIMIT \
     --max-backlog 1000000 \
     --transfers $THREADS \
-    --checkers 128 \
+    --checkers $CHECKERS \
     --buffer-size 128M \
     --http-url $HTTP_URL \
     --files-from=$FILES_PATH \
-    --retries 20 \
+    --retries $RETRIES \
     --retries-sleep 1s \
-    --low-level-retries 10 \
+    --low-level-retries $LOW_LEVEL_RETRIES \
     --progress \
     --stats-one-line \
     :http:$PREFIX/$BLOCK/$DATA_TYPE/ $DATA_PATH
