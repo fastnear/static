@@ -35,7 +35,7 @@ HTTP_URL="https://snapshot.neardata.xyz"
 : "${LOW_LEVEL_RETRIES:=10}"
 
 PREFIX="$CHAIN_ID/archival"
-HTTP_NO_HEAD_FLAG=""
+HTTP_NO_HEAD_FLAG="--http-no-head"
 
 LATEST=$(curl -s "$HTTP_URL/$PREFIX/latest.txt")
 echo "Latest snapshot block: $LATEST"
@@ -46,7 +46,7 @@ main() {
   mkdir -p "$DATA_PATH"
   echo "Snapshot block: $BLOCK"
 
-  [ -d "$DATA_PATH" ] && [ -n "$(find "$DATA_PATH" -maxdepth 1 -not -name '.' -not -name '..' -print -quit)" ] && HTTP_NO_HEAD_FLAG="--http-no-head"
+  [ -d "$DATA_PATH" ] && [ -n "$(find "$DATA_PATH" -maxdepth 1 -not -name '.' -not -name '..' -print -quit)" ] && HTTP_NO_HEAD_FLAG=""
 
   FILES_PATH="/tmp/files.txt"
   curl -s "$HTTP_URL/$PREFIX/$BLOCK/$DATA_TYPE/files.txt" -o $FILES_PATH
