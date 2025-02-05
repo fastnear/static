@@ -13,6 +13,9 @@ set -e
 # - Set $BWLIMIT to the maximum bandwidth to use for download in case you want to limit it. (default: 10G)
 # - Set $DATA_PATH to the path where you want to download the snapshot (default: /mnt/nvme/data/$DATA_TYPE)
 # - Set $BLOCK to the block height of the snapshot you want to download. If not set, it will download the latest snapshot.
+# - Set $RETRIES to the number of retries for each file. (default: 20)
+# - Set $CHECKERS to the number of checkers to use. (default: $THREADS)
+# - Set $LOW_LEVEL_RETRIES to the number of low level retries. (default: 10)
 
 if ! type rclone >/dev/null 2>&1
 then
@@ -43,9 +46,7 @@ main() {
   mkdir -p "$DATA_PATH"
   echo "Snapshot block: $BLOCK"
 
-  if [ -z "$(find "$DATA_PATH" -maxdepth 1 -not -name '.' -not -name '..' -print -quit)" ]; then
-      HTTP_NO_HEAD_FLAG="--http-no-head"
-  fi
+  [ -d "$DATA_PATH" ] && [ -n "$(find "$DATA_PATH" -maxdepth 1 -not -name '.' -not -name '..' -print -quit)" ] && HTTP_NO_HEAD_FLAG="--http-no-head"
 
   FILES_PATH="/tmp/files.txt"
   curl -s "$HTTP_URL/$PREFIX/$BLOCK/$DATA_TYPE/files.txt" -o $FILES_PATH
