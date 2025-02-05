@@ -56,6 +56,7 @@ main() {
 
   rclone copy \
     --no-traverse \
+    $HTTP_NO_HEAD_FLAG \
     --multi-thread-streams 1 \
     --tpslimit $TPSLIMIT \
     --bwlimit $BWLIMIT \
