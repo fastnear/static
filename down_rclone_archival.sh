@@ -13,9 +13,10 @@ set -e
 # - Set $BWLIMIT to the maximum bandwidth to use for download in case you want to limit it. (default: 10G)
 # - Set $DATA_PATH to the path where you want to download the snapshot (default: /mnt/nvme/data/$DATA_TYPE)
 # - Set $BLOCK to the block height of the snapshot you want to download. If not set, it will download the latest snapshot.
-# - Set $RETRIES to the number of retries for each file. (default: 20)
+# - Set $RETRIES to the number of retries for each file. (default: 200)
 # - Set $CHECKERS to the number of checkers to use. (default: $THREADS)
 # - Set $LOW_LEVEL_RETRIES to the number of low level retries. (default: 10)
+# - Set $ENABLE_HTTP_NO_HEAD to true if you want to add --http-no-head flag on rclone (default: false)
 
 if ! type rclone >/dev/null 2>&1
 then
@@ -30,12 +31,16 @@ HTTP_URL="https://snapshot.neardata.xyz"
 : "${DATA_TYPE:=cold-data}"
 : "${DATA_PATH:=/mnt/nvme/data/$DATA_TYPE}"
 : "${BWLIMIT:=10G}"
-: "${RETRIES:=20}"
+: "${RETRIES:=200}"
 : "${CHECKERS:=128}"
 : "${LOW_LEVEL_RETRIES:=10}"
+: "${ENABLE_HTTP_NO_HEAD:=false}"
 
 PREFIX="$CHAIN_ID/archival"
-HTTP_NO_HEAD_FLAG="--http-no-head"
+HTTP_NO_HEAD_FLAG=""
+if [ "$ENABLE_HTTP_NO_HEAD" = true ]; then
+  HTTP_NO_HEAD_FLAG="--http-no-head"
+fi
 
 LATEST=$(curl -s "$HTTP_URL/$PREFIX/latest.txt")
 echo "Latest snapshot block: $LATEST"
@@ -46,7 +51,10 @@ main() {
   mkdir -p "$DATA_PATH"
   echo "Snapshot block: $BLOCK"
 
-  [ -d "$DATA_PATH" ] && [ -n "$(find "$DATA_PATH" -maxdepth 1 -not -name '.' -not -name '..' -print -quit)" ] && HTTP_NO_HEAD_FLAG=""
+  if [ -d "$DATA_PATH" ] && [ -n "$(ls -A "$DATA_PATH")" ]; then
+    echo "Data path exists and is not empty, skipping --http-no-head flag on rclone"
+    HTTP_NO_HEAD_FLAG=""
+  fi
 
   FILES_PATH="/tmp/files.txt"
   curl -s "$HTTP_URL/$PREFIX/$BLOCK/$DATA_TYPE/files.txt" -o $FILES_PATH
