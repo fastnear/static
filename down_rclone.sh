@@ -13,6 +13,10 @@ set -e
 # - Set $DATA_PATH to the path where you want to download the snapshot (default: ~/.near/data)
 # - Set $RPC_TYPE to either `rpc` or `fast-rpc` (default: rpc). `fast-rpc` is the 3 epochs and trimmed headers. `rpc` is 5 epochs and all headers.
 # - Set $BLOCK to the block height of the snapshot you want to download. If not set, it will download the latest snapshot.
+# - Set $RETRIES to the number of retries for each file. (default: 20)
+# - Set $CHECKERS to the number of checkers to use. (default: $THREADS)
+# - Set $LOW_LEVEL_RETRIES to the number of low level retries. (default: 10)
+# - Set $ENABLE_HTTP_NO_HEAD to true if you want to add --http-no-head flag on rclone (default: false)
 
 if ! type rclone >/dev/null 2>&1
 then
@@ -27,8 +31,17 @@ HTTP_URL="https://snapshot.neardata.xyz"
 : "${BWLIMIT:=10G}"
 : "${RPC_TYPE:=rpc}"
 : "${DATA_PATH:=~/.near/data}"
+: "${RETRIES:=20}"
+: "${CHECKERS:=$THREADS}"
+: "${LOW_LEVEL_RETRIES:=10}"
+: "${ENABLE_HTTP_NO_HEAD:=false}"
 
 PREFIX="$CHAIN_ID/$RPC_TYPE"
+
+HTTP_NO_HEAD_FLAG=""
+if [ "$ENABLE_HTTP_NO_HEAD" = true ]; then
+  HTTP_NO_HEAD_FLAG="--http-no-head"
+fi
 
 LATEST=$(curl -s "$HTTP_URL/$PREFIX/latest.txt")
 echo "Latest snapshot block: $LATEST"
@@ -39,6 +52,11 @@ main() {
   mkdir -p "$DATA_PATH"
   echo "Snapshot block: $BLOCK"
 
+  if [ -d "$DATA_PATH" ] && [ -n "$(ls -A "$DATA_PATH")" ]; then
+    echo "Data path exists and is not empty, skipping --http-no-head flag on rclone"
+    HTTP_NO_HEAD_FLAG=""
+  fi
+
   FILES_PATH="/tmp/files.txt"
   curl -s "$HTTP_URL/$PREFIX/$BLOCK/files.txt" -o $FILES_PATH
 
@@ -47,18 +65,19 @@ main() {
 
   rclone copy \
     --no-traverse \
+    $HTTP_NO_HEAD_FLAG \
     --multi-thread-streams 1 \
     --tpslimit $TPSLIMIT \
     --bwlimit $BWLIMIT \
     --max-backlog 1000000 \
     --transfers $THREADS \
-    --checkers $THREADS \
+    --checkers $CHECKERS \
     --buffer-size 128M \
     --http-url $HTTP_URL \
     --files-from=$FILES_PATH \
-    --retries 10 \
+    --retries $RETRIES \
     --retries-sleep 1s \
-    --low-level-retries 10 \
+    --low-level-retries $LOW_LEVEL_RETRIES \
     --progress \
     --stats-one-line \
     :http:$PREFIX/$BLOCK/ $DATA_PATH
