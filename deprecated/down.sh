@@ -2,7 +2,7 @@
 
 set -e
 
-PREFIX="https://snapshot.neardata.xyz/mainnet/rpc"
+PREFIX="https://snapshot.fastnear.xyz/mainnet/rpc"
 : "${THREADS:=16}"
 : "${DATA_PATH:=/root/.near/data}"
 

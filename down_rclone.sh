@@ -24,7 +24,7 @@ then
     exit 1
 fi
 
-HTTP_URL="https://snapshot.neardata.xyz"
+HTTP_URL="https://snapshot.fastnear.xyz"
 : "${CHAIN_ID:=mainnet}"
 : "${THREADS:=128}"
 : "${TPSLIMIT:=4096}"
