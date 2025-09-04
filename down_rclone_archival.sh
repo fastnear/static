@@ -42,10 +42,10 @@ if [ "$ENABLE_HTTP_NO_HEAD" = true ]; then
   HTTP_NO_HEAD_FLAG="--http-no-head"
 fi
 
-LATEST=$(curl -s "$HTTP_URL/$PREFIX/latest.txt")
-echo "Latest snapshot block: $LATEST"
+# LATEST=$(curl -s "$HTTP_URL/$PREFIX/latest.txt")
+# echo "Latest snapshot block: $LATEST"
 
-: "${BLOCK:=$LATEST}"
+# : "${BLOCK:=$LATEST}"
 
 main() {
   mkdir -p "$DATA_PATH"
