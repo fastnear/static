@@ -59,39 +59,27 @@ main() {
   FILES_PATH="/tmp/files.txt"
   curl -s "$HTTP_URL/$PREFIX/$BLOCK/$DATA_TYPE/files.txt" -o $FILES_PATH
 
-  # Split files.txt into chunks of 50000 lines each and download them sequentially
-  mkdir -p /tmp/files_chunks
-  split -l 50000 $FILES_PATH /tmp/files_chunks/files_chunk_
-
   EXPECTED_NUM_FILES=$(wc -l < $FILES_PATH)
-  echo "Need to download $EXPECTED_NUM_FILES files"
+  echo "Downloading $EXPECTED_NUM_FILES files with $THREADS threads"
 
-  OFFSET=0
-  # Iterate over each chunk file and download files in that chunk. Count the offset to start from.
-  for CHUNK_FILE in /tmp/files_chunks/files_chunk_*; do
-    echo "Processing chunk file: $CHUNK_FILE with offset $OFFSET out of $EXPECTED_NUM_FILES"
-    EXPECTED_NUM_FILES=$(wc -l < $CHUNK_FILE)
-    echo "Downloading $EXPECTED_NUM_FILES files from chunk with $THREADS threads"
-
-    rclone copy \
-      --no-traverse \
-      $HTTP_NO_HEAD_FLAG \
-      --multi-thread-streams 1 \
-      --tpslimit $TPSLIMIT \
-      --bwlimit $BWLIMIT \
-      --max-backlog 1000000 \
-      --transfers $THREADS \
-      --checkers $CHECKERS \
-      --buffer-size 128M \
-      --http-url $HTTP_URL \
-      --files-from=$CHUNK_FILE \
-      --retries $RETRIES \
-      --retries-sleep 1s \
-      --low-level-retries $LOW_LEVEL_RETRIES \
-      --progress \
-      --stats-one-line \
-      :http:$PREFIX/$BLOCK/$DATA_TYPE/ $DATA_PATH
-  done
+  rclone copy \
+    --no-traverse \
+    $HTTP_NO_HEAD_FLAG \
+    --multi-thread-streams 1 \
+    --tpslimit $TPSLIMIT \
+    --bwlimit $BWLIMIT \
+    --max-backlog 1000000 \
+    --transfers $THREADS \
+    --checkers $CHECKERS \
+    --buffer-size 128M \
+    --http-url $HTTP_URL \
+    --files-from=$FILES_PATH \
+    --retries $RETRIES \
+    --retries-sleep 1s \
+    --low-level-retries $LOW_LEVEL_RETRIES \
+    --progress \
+    --stats-one-line \
+    :http:$PREFIX/$BLOCK/$DATA_TYPE/ $DATA_PATH
 
   ACTUAL_NUM_FILES=$(find $DATA_PATH -type f | wc -l)
   echo "Downloaded $ACTUAL_NUM_FILES files, expected $EXPECTED_NUM_FILES"
