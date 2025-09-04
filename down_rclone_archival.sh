@@ -71,8 +71,8 @@ main() {
   for CHUNK_FILE in /tmp/files_chunks/files_chunk_*; do
     echo "Processing chunk file: $CHUNK_FILE with offset $OFFSET out of $EXPECTED_NUM_FILES"
     OFFSET=$((OFFSET + 50000))
-    EXPECTED_NUM_FILES=$(wc -l < $CHUNK_FILE)
-    echo "Downloading $EXPECTED_NUM_FILES files from chunk with $THREADS threads"
+    EXPECTED_CHUNK_NUM_FILES=$(wc -l < $CHUNK_FILE)
+    echo "Downloading $EXPECTED_CHUNK_NUM_FILES files from chunk with $THREADS threads"
 
     rclone copy \
       --no-traverse \
