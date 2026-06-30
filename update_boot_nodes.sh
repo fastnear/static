@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-# The script updates the neard config with the latest boot nodes and sets the state sync bucket to "fast-state-parts".
+# The script updates the neard config with the latest boot nodes.
 # Usage: ./update_boot_nodes.sh chain_id [config_path]
 
 CHAIN_ID=$1
@@ -33,4 +33,4 @@ awk 'NR>2 {print ","} length($0) {print p} {p=$0}' ORS="" | sed 's/"//g'`
 
 echo "New boot nodes: $BOOT_NODES"
 
-cat <<< $(jq '.network.boot_nodes = "'$BOOT_NODES'" | .state_sync.sync.ExternalStorage.location.GCS.bucket = "fast-state-parts"' $CONFIG_PATH) > $CONFIG_PATH
+cat <<< $(jq '.network.boot_nodes = "'$BOOT_NODES'"' $CONFIG_PATH) > $CONFIG_PATH
